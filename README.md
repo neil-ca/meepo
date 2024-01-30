@@ -16,3 +16,8 @@ within, much easier.
 `mpc` is a Parser Combinator library that help us to build programs that understand
 and process particular languages.
 
+## Coding Grammars
+> An Adjective is either "wow", "many", "so" or "such".
+> A noun is either "lisp", "language", "c", "book" or "build".
+> A phrase is an adjective followed by a noun.
+> A Doge is zero or more phrases.
