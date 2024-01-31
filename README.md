@@ -21,3 +21,23 @@ and process particular languages.
 > A noun is either "lisp", "language", "c", "book" or "build".
 > A phrase is an adjective followed by a noun.
 > A Doge is zero or more phrases.
+
+## Evaluation
+### Trees
+An Abstract Syntax Tree represents the structure of the program based on the input
+entered by the user in our case with a REPL.
+### Recursion
+Is a good use case to evaluate a tree with childs of another trees with recursion.
+```c
+int number_of_nodes(mpc_ast_t* t) {
+  if (t->children_num == 0) { return 1; }
+  if (t->children_num >= 1) {
+    int total = 1;
+    for (int i = 0; i < t->children_num; i++) {
+      total = total + number_of_nodes(t->children[i]);
+    }
+    return total;
+  }
+  return 0;
+}
+```
