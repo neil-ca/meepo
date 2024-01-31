@@ -1,5 +1,13 @@
 # My own Lisp on c
 
+## Use it
+```sh
+apt install libedit-dev
+make
+./parsing
+lisp> + 5 92
+```
+
 ## What is a Programming Language
 Is very similar to a real language. There is a structure behind it, and some rules
 which dictate what is, and isn't, a valid thing to say. When we read an write natural
@@ -21,6 +29,11 @@ and process particular languages.
 > A noun is either "lisp", "language", "c", "book" or "build".
 > A phrase is an adjective followed by a noun.
 > A Doge is zero or more phrases.
+### Polish Notation
+```sh
+1 + 2 + 6 is + 1 2 6
+6 + (2 * 9) is +6 (* 2 9)
+```
 
 ## Evaluation
 ### Trees
