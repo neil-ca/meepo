@@ -1,4 +1,4 @@
-#include "evaluation.h"
+#include "error_handling.h"
 #include "mpc.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   mpca_lang(MPCA_LANG_DEFAULT,
             "                                                     \
     number   : /-?[0-9]+/ ;                             \
-    operator : '+' | '-' | '*' | '/' ;                  \
+    operator : '+' | '-' | '*' | '/' | '%' | '^' ;      \
     expr     : <number> | '(' <operator> <expr>+ ')' ;  \
     lispy    : /^/ <operator> <expr>+ /$/ ;             \
   ",
@@ -58,8 +58,8 @@ int main(int argc, char **argv) {
 
     if (mpc_parse("<stdin>", input, Lispy, &r)) {
       /* mpc_ast_print(r.output); */
-      long result = eval(r.output);
-      printf("%li\n", result);
+      lval result = eval(r.output);
+      lval_println(result);
       mpc_ast_delete(r.output);
     } else {
       mpc_err_print(r.error);

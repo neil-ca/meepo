@@ -54,3 +54,18 @@ int number_of_nodes(mpc_ast_t* t) {
   return 0;
 }
 ```
+
+## Error Handling
+### Crashes
+The program crashed upon trying to divide by zero. It's okay if a program crashes
+during developmen, but our final program would hopefully never crash, and should
+always explain to the user what went wrong.
+At the moment our program can produce syntax errors but it still has no functionality
+for reporting errors in the evaluation of expressions.
+But there is no magic in how C programs work. If you face a really troublesome bug
+don't give up or sit and stare at the screen till your eyes bleed. `gdb` and `valgrind`
+are good for see what happens, I encourage to add in your tool-kit.
+```c
+>lisp / 10 0 // No crash
+Error: Division by zero!
+```
