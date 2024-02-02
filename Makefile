@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall
 LIBS = -ledit -lm
-SRC = parsing.c mpc.c error_handling.c
+SRC = parsing.c mpc.c eval.c
 TARGET = parsing
 
 all: $(TARGET)

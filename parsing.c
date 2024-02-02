@@ -1,4 +1,4 @@
-#include "error_handling.h"
+#include "eval.h"
 #include "mpc.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +32,8 @@ int main(int argc, char **argv) {
   // Polish Notation Grammar
   // Create some parsers
   mpc_parser_t *Number = mpc_new("number");
-  mpc_parser_t *Operator = mpc_new("operator");
+  mpc_parser_t *Symbol = mpc_new("symbol");
+  mpc_parser_t *Sexpr = mpc_new("sexpr");
   mpc_parser_t *Expr = mpc_new("expr");
   mpc_parser_t *Lispy = mpc_new("lispy");
 
@@ -40,11 +41,12 @@ int main(int argc, char **argv) {
   mpca_lang(MPCA_LANG_DEFAULT,
             "                                                     \
     number   : /-?[0-9]+/ ;                             \
-    operator : '+' | '-' | '*' | '/' | '%' | '^' ;      \
-    expr     : <number> | '(' <operator> <expr>+ ')' ;  \
-    lispy    : /^/ <operator> <expr>+ /$/ ;             \
+    symbol : '+' | '-' | '*' | '/' | '%' | '^' ;      \
+    sexpr     : '(' <expr>* ')' ;  \
+    expr     : <number> | <symbol> | <sexpr> ;  \
+    lispy    : /^/ <expr>* /$/ ;             \
   ",
-            Number, Operator, Expr, Lispy);
+            Number, Symbol, Sexpr, Expr, Lispy);
 
   puts("Lispy Version 0.1");
   puts("Press Ctrl+c to Exit\n");
@@ -58,9 +60,10 @@ int main(int argc, char **argv) {
 
     if (mpc_parse("<stdin>", input, Lispy, &r)) {
       /* mpc_ast_print(r.output); */
-      lval result = eval(r.output);
-      lval_println(result);
-      mpc_ast_delete(r.output);
+      lval *x = lval_eval(lval_read(r.output));
+      lval_println(x);
+      lval_del(x);
+      /* mpc_ast_delete(r.output); */
     } else {
       mpc_err_print(r.error);
       mpc_err_delete(r.error);
@@ -68,6 +71,6 @@ int main(int argc, char **argv) {
     free(input);
   }
 
-  mpc_cleanup(4, Number, Operator, Expr, Lispy);
+  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Lispy);
   return 0;
 }
