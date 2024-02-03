@@ -1,5 +1,11 @@
 #include "mpc.h"
 
+#define LASSERT(args, cond, err)                                               \
+  if (!(cond)) {                                                               \
+    lval_del(args);                                                            \
+    return lval_err(err);                                                      \
+  }
+
 typedef struct lval {
   int type;
   long num;
@@ -21,3 +27,6 @@ void lval_del(lval *v);
 lval *lval_err(char *m);
 lval *lval_pop(lval *v, int i);
 lval *lval_take(lval *v, int i);
+lval *lval_add(lval *v, lval *x);
+lval *lval_sexpr(void);
+lval *lval_qexpr(void);

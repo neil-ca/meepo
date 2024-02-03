@@ -39,10 +39,11 @@ int main(int argc, char **argv) {
   mpc_parser_t *Lispy = mpc_new("lispy");
 
   // Define them with the following language
-  mpca_lang(MPCA_LANG_DEFAULT,
-            "                                         \
-    number   : /-?[0-9]+/ ;                           \
-    symbol : '+' | '-' | '*' | '/' | '%' | '^' ;      \
+  mpca_lang(MPCA_LANG_DEFAULT, "                    \
+    number   : /-?[0-9]+/ ;                         \
+    symbol : \"list\" | \"head\" | \"tail\"         \
+             \"join\" | \"eval\" |                   \
+            '+' | '-' | '*' | '/' | '%' | '^' ;      \
     sexpr     : '(' <expr>* ')' ;  \
     qexpr     : '{' <expr>* '}' ;  \
     expr     : <number> | <symbol> | <sexpr> | <qexpr> ;  \

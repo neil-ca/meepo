@@ -6,6 +6,7 @@ apt install libedit-dev
 make
 ./parsing
 lisp> + 5 92
+lisp > eval {head (list 1 2 3 4)}
 ```
 
 ## What is a Programming Language

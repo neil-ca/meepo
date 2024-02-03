@@ -1,4 +1,5 @@
 #include "eval.h"
+#include <string.h>
 
 // Constructors & Destructors
 lval *lval_num(long x) {
@@ -29,7 +30,7 @@ void lval_del(lval *v) {
   case LVAL_NUM:
     break;
 
-  // For Err or Sym free the string data
+    // For Err or Sym free the string data
   case LVAL_ERR:
     free(v->err);
     break;
@@ -37,7 +38,8 @@ void lval_del(lval *v) {
     free(v->sym);
     break;
 
-  // If Sexpr then delete all elements inside
+    // if Qexpr or Sexpr then delete all elements inside
+  case LVAL_QEXPR:
   case LVAL_SEXPR:
     for (int i = 0; i < v->count; i++) {
       lval_del(v->cell[i]);
@@ -78,6 +80,9 @@ lval *lval_read(mpc_ast_t *t) {
   if (strstr(t->tag, "sexpr")) {
     x = lval_sexpr();
   }
+  if (strstr(t->tag, "qexpr")) {
+    x = lval_qexpr();
+  }
 
   // Fill this list with any valid expression contained within
   for (int i = 0; i < t->children_num; i++) {
@@ -85,6 +90,12 @@ lval *lval_read(mpc_ast_t *t) {
       continue;
     }
     if (strcmp(t->children[i]->contents, ")") == 0) {
+      continue;
+    }
+    if (strcmp(t->children[i]->contents, "{") == 0) {
+      continue;
+    }
+    if (strcmp(t->children[i]->contents, "}") == 0) {
       continue;
     }
     if (strcmp(t->children[i]->tag, "regex") == 0) {
@@ -114,17 +125,6 @@ void lval_print(lval *v) {
     lval_expr_print(v, '{', '}');
     break;
   }
-}
-
-void lval_expr_print(lval *v, char open, char close) {
-  putchar(open);
-  for (int i = 0; i < v->count; i++) {
-    lval_print(v->cell[i]);
-    if (i != (v->count - 1)) {
-      putchar(' ');
-    }
-  }
-  putchar(close);
 }
 
 void lval_println(lval *v) {
