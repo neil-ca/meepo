@@ -24,6 +24,12 @@ struct lval {
   lval **cell;
 };
 
+struct lenv {
+  int count;
+  char **syms;
+  lval **vals;
+};
+
 enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
 
 // Possible Error Types
@@ -40,3 +46,4 @@ lval *lval_take(lval *v, int i);
 lval *lval_add(lval *v, lval *x);
 lval *lval_sexpr(void);
 lval *lval_qexpr(void);
+lval *lval_copy(lval *v);
