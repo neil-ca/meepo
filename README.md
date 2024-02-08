@@ -8,6 +8,9 @@ make
 lisp> + 5 92
 lisp > eval {head (list 1 2 3 4)}
 lisp > (eval (head {+ - + - * /})) 10 20
+lisp > def {x} 100
+lisp > def {y} 200
+lisp > + x y
 ```
 
 ## What is a Programming Language

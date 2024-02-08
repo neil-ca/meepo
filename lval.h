@@ -54,3 +54,4 @@ lval *lenv_get(lenv *e, lval *k);
 lenv *lenv_new(void);
 
 void lenv_add_builtins(lenv *e);
+void lenv_put(lenv *e, lval *k, lval *v);

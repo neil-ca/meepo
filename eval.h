@@ -8,10 +8,10 @@ lval *builtin_head(lenv *e, lval *a);
 lval *builtin_tail(lenv *e, lval *a);
 lval *builtin_join(lenv *e, lval *a);
 lval *builtin_eval(lenv *e, lval *a);
-
 lval *builtin_add(lenv *e, lval *a);
 lval *builtin_sub(lenv *e, lval *a);
 lval *builtin_mul(lenv *e, lval *a);
 lval *builtin_div(lenv *e, lval *a);
 lval *builtin_mod(lenv *e, lval *a);
 lval *builtin_exp(lenv *e, lval *a);
+lval *builtin_def(lenv *e, lval *a);

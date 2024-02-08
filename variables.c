@@ -90,4 +90,7 @@ void lenv_add_builtins(lenv *e) {
   lenv_add_builtin(e, "/", builtin_div);
   lenv_add_builtin(e, "%", builtin_mod);
   lenv_add_builtin(e, "^", builtin_exp);
+
+  // Variable Functions
+  lenv_add_builtin(e, "def", builtin_def);
 }
