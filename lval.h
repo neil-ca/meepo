@@ -47,3 +47,10 @@ lval *lval_add(lval *v, lval *x);
 lval *lval_sexpr(void);
 lval *lval_qexpr(void);
 lval *lval_copy(lval *v);
+lval *lval_sym(char *s);
+
+// Environment
+lval *lenv_get(lenv *e, lval *k);
+lenv *lenv_new(void);
+
+void lenv_add_builtins(lenv *e);

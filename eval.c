@@ -2,15 +2,23 @@
 #include "eval.h"
 
 // Evaluate
-lval *lval_eval(lval *v) {
+// Variable Evaluation
+// Our environment returns a copy of the value
+// we need to remember to delete the input symbol lval.
+lval *lval_eval(lenv *e, lval *v) {
+  if (v->type == LVAL_SYM) {
+    lval *x = lenv_get(e, v);
+    lval_del(v);
+    return x;
+  }
   if (v->type == LVAL_SEXPR) {
-    return lval_eval_sexpr(v);
+    return lval_eval_sexpr(e, v);
   }
   // All other lval types remain the same
   return v;
 }
 
-lval *builtin_op(lval *a, char *op) {
+lval *builtin_op(lenv *e, lval *a, char *op) {
   // Ensure all arguments are numbers
   for (int i = 0; i < a->count; i++) {
     LASSERT(a, a->cell[i]->type == LVAL_NUM, "Cannot operate on non-number!");
@@ -59,11 +67,26 @@ lval *builtin_op(lval *a, char *op) {
   return x;
 }
 
+/* Now that our evaluation relies on the new function type we need to make
+ * sure we can register all of our builtin functions with the environment
+ * before we start the interactive prompt.
+ * */
+lval *builtin_add(lenv *e, lval *a) { return builtin_op(e, a, "+"); }
 
-lval *lval_eval_sexpr(lval *v) {
+lval *builtin_sub(lenv *e, lval *a) { return builtin_op(e, a, "-"); }
+
+lval *builtin_mul(lenv *e, lval *a) { return builtin_op(e, a, "*"); }
+
+lval *builtin_div(lenv *e, lval *a) { return builtin_op(e, a, "/"); }
+
+lval *builtin_mod(lenv *e, lval *a) { return builtin_op(e, a, "%"); }
+
+lval *builtin_exp(lenv *e, lval *a) { return builtin_op(e, a, "^"); }
+
+lval *lval_eval_sexpr(lenv *e, lval *v) {
   // Evaluate children
   for (int i = 0; i < v->count; i++) {
-    v->cell[i] = lval_eval(v->cell[i]);
+    v->cell[i] = lval_eval(e, v->cell[i]);
   }
 
   // Error checking
@@ -83,21 +106,21 @@ lval *lval_eval_sexpr(lval *v) {
     return lval_take(v, 0);
   }
 
-  // Ensure first element is symbol
+  // Ensure first element is a function after evaluation
   lval *f = lval_pop(v, 0);
-  if (f->type != LVAL_SYM) {
+  if (f->type != LVAL_FUN) {
     lval_del(f);
     lval_del(v);
-    return lval_err("S-expression Does not start with symbol!");
+    return lval_err("First element is not a function!");
   }
 
-  // Call builtin with operator
-  lval *result = builtin(v, f->sym);
+  // If so call function to get result
+  lval *result = f->fun(e, v);
   lval_del(f);
   return result;
 }
 
-lval *builtin_head(lval *a) {
+lval *builtin_head(lenv *e, lval *a) {
   LASSERT(a, a->count == 1, "Function 'head' passed to many arguments!");
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
           "Function 'head' passed incorrect type!");
@@ -113,7 +136,7 @@ lval *builtin_head(lval *a) {
   return v;
 }
 
-lval *builtin_tail(lval *a) {
+lval *builtin_tail(lenv *e, lval *a) {
   LASSERT(a, a->count == 1, "Function 'tail' passed too many arguments!");
 
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
@@ -127,19 +150,19 @@ lval *builtin_tail(lval *a) {
   return v;
 }
 
-lval *builtin_list(lval *a) {
+lval *builtin_list(lenv *e, lval *a) {
   a->type = LVAL_QEXPR;
   return a;
 }
 
-lval *builtin_eval(lval *a) {
+lval *builtin_eval(lenv *e, lval *a) {
   LASSERT(a, a->count == 1, "Function 'eval' passed to many arguments!");
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
           "Function 'eval' passed incorrect type!");
 
   lval *x = lval_take(a, 0);
   x->type = LVAL_SEXPR;
-  return lval_eval(x);
+  return lval_eval(e, x);
 }
 
 lval *lval_join(lval *x, lval *y) {
@@ -151,7 +174,7 @@ lval *lval_join(lval *x, lval *y) {
   return x;
 }
 
-lval *builtin_join(lval *a) {
+lval *builtin_join(lenv *e, lval *a) {
   for (int i = 0; i < a->count; i++) {
     LASSERT(a, a->cell[i]->type == LVAL_QEXPR,
             "Function 'join' passed incorrect type.");
@@ -167,24 +190,24 @@ lval *builtin_join(lval *a) {
   return x;
 }
 
-lval *builtin(lval *a, char *func) {
+lval *builtin(lenv *e, lval *a, char *func) {
   if (strcmp("list", func) == 0) {
-    return builtin_list(a);
+    return builtin_list(e, a);
   }
   if (strcmp("head", func) == 0) {
-    return builtin_head(a);
+    return builtin_head(e, a);
   }
   if (strcmp("tail", func) == 0) {
-    return builtin_tail(a);
+    return builtin_tail(e, a);
   }
   if (strcmp("join", func) == 0) {
-    return builtin_join(a);
+    return builtin_join(e, a);
   }
   if (strcmp("eval", func) == 0) {
-    return builtin_eval(a);
+    return builtin_eval(e, a);
   }
   if (strstr("+-/*^%", func)) {
-    return builtin_op(a, func);
+    return builtin_op(e, a, func);
   }
   lval_del(a);
   return lval_err("Unknown Function!");

@@ -52,6 +52,8 @@ int main(int argc, char **argv) {
   puts("Lispy Version 0.1");
   puts("Press Ctrl+c to Exit\n");
 
+  lenv *e = lenv_new();
+  lenv_add_builtins(e);
   while (1) {
     char *input = readline("lisp> ");
     add_history(input);
@@ -61,10 +63,10 @@ int main(int argc, char **argv) {
 
     if (mpc_parse("<stdin>", input, Lispy, &r)) {
       /* mpc_ast_print(r.output); */
-      lval *x = lval_eval(lval_read(r.output));
+      lval *x = lval_eval(e, lval_read(r.output));
       lval_println(x);
       lval_del(x);
-      /* mpc_ast_delete(r.output); */
+      mpc_ast_delete(r.output);
     } else {
       mpc_err_print(r.error);
       mpc_err_delete(r.error);

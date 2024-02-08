@@ -7,6 +7,7 @@ make
 ./parsing
 lisp> + 5 92
 lisp > eval {head (list 1 2 3 4)}
+lisp > (eval (head {+ - + - * /})) 10 20
 ```
 
 ## What is a Programming Language
