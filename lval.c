@@ -1,5 +1,4 @@
 #include "eval.h"
-#include <string.h>
 
 // Constructors & Destructors
 lval *lval_num(long x) {
@@ -9,11 +8,24 @@ lval *lval_num(long x) {
   return v;
 }
 
-lval *lval_err(char *m) {
+lval *lval_err(char *fmt, ...) {
   lval *v = malloc(sizeof(lval));
   v->type = LVAL_ERR;
-  v->err = malloc(strlen(m) + 1);
-  strcpy(v->err, m);
+
+  // Create a va list and initialize it
+  va_list va;
+  va_start(va, fmt);
+
+  v->err = malloc(512);
+
+  // printf the error string with a maximum of 511 characters
+  vsnprintf(v->err, 511, fmt, va);
+
+  // Reallocate to number of bytes actually used
+  v->err = realloc(v->err, strlen(v->err) + 1);
+
+  // Cleanup our va list
+  va_end(va);
   return v;
 }
 
@@ -189,4 +201,23 @@ lval *lval_copy(lval *v) {
     break;
   }
   return x;
+}
+
+char *ltype_name(int t) {
+  switch (t) {
+  case LVAL_FUN:
+    return "Function";
+  case LVAL_NUM:
+    return "Number";
+  case LVAL_ERR:
+    return "Error";
+  case LVAL_SYM:
+    return "Symbol";
+  case LVAL_SEXPR:
+    return "S-Expression";
+  case LVAL_QEXPR:
+    return "Q-Expression";
+  default:
+    return "Unknown";
+  }
 }

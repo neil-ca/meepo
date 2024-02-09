@@ -1,9 +1,10 @@
 #include "mpc.h"
 
-#define LASSERT(args, cond, err)                                               \
+#define LASSERT(args, cond, fmt, ...)                                          \
   if (!(cond)) {                                                               \
+    lval *err = lval_err(fmt, ##__VA_ARGS__);                                  \
     lval_del(args);                                                            \
-    return lval_err(err);                                                      \
+    return err;                                                                \
   }
 
 struct lval;
@@ -40,7 +41,6 @@ void lval_expr_print(lval *v, char open, char close);
 void lval_print(lval *v);
 void lval_println(lval *v);
 void lval_del(lval *v);
-lval *lval_err(char *m);
 lval *lval_pop(lval *v, int i);
 lval *lval_take(lval *v, int i);
 lval *lval_add(lval *v, lval *x);
@@ -48,7 +48,8 @@ lval *lval_sexpr(void);
 lval *lval_qexpr(void);
 lval *lval_copy(lval *v);
 lval *lval_sym(char *s);
-
+lval *lval_err(char *fmt, ...);
+char *ltype_name(int t);
 // Environment
 lval *lenv_get(lenv *e, lval *k);
 lenv *lenv_new(void);

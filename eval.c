@@ -21,7 +21,9 @@ lval *lval_eval(lenv *e, lval *v) {
 lval *builtin_op(lenv *e, lval *a, char *op) {
   // Ensure all arguments are numbers
   for (int i = 0; i < a->count; i++) {
-    LASSERT(a, a->cell[i]->type == LVAL_NUM, "Cannot operate on non-number!");
+    LASSERT(a, a->cell[i]->type == LVAL_NUM,
+            "Cannot operate on non-number. Got: %s, Expected %s",
+            ltype_name(a->cell[i]->type), ltype_name(LVAL_NUM));
   }
 
   // Pop the first element
@@ -121,9 +123,13 @@ lval *lval_eval_sexpr(lenv *e, lval *v) {
 }
 
 lval *builtin_head(lenv *e, lval *a) {
-  LASSERT(a, a->count == 1, "Function 'head' passed to many arguments!");
+  LASSERT(a, a->count == 1,
+          "Function 'head' passed to many arguments. Got %i, Expected %i.",
+          a->count, 1);
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
-          "Function 'head' passed incorrect type!");
+          "Function 'head' passed incorrect type for argument 0. Got %s, "
+          "Expected %s.",
+          ltype_name(a->cell[0]->type), ltype_name(LVAL_QEXPR));
   LASSERT(a, a->cell[0]->count != 0, "Function 'head' passed {}!");
 
   // Otherwise take first argument
@@ -233,7 +239,7 @@ lval *builtin_def(lenv *e, lval *a) {
 
   // Assign copies of values to symbols
   for (int i = 0; i < syms->count; i++) {
-      lenv_put(e, syms->cell[i], a->cell[i+1]);
+    lenv_put(e, syms->cell[i], a->cell[i + 1]);
   }
 
   lval_del(a);
